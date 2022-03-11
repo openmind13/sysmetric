@@ -1,0 +1,5 @@
+version: "3"
+services:
+  sysmetric:
+    build: .
+    network_mode: "host"

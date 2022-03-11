@@ -1,0 +1,17 @@
+
+[main]
+sysmonitor_scrape_period = "1s"
+sysinformer_scrape_period = "1s"
+
+[system_monitor]
+enabled = true
+scrape_period = "1s"
+
+[process_monitor]
+enabled = true
+scrape_period = "1s"
+processes = ["chrome", "gopls"]
+
+[system_informer]
+enabled = true
+scrape_period = "1s"
