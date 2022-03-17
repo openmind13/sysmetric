@@ -1,15 +1,14 @@
 # System metric
 
-## Requirements
+## Related utilities
 
-For getting network interfaces required `ethtool` utility
+### Network
+- `ethtool`
+- `dmesg`
+- `mii-tool`
+- `iperf/iperf3`
+### Cpu
+- `htop`
 
-```bash
-sudo apt install ethtool
-```
-
-## For finding process by name:
-
-```bash
-pidof process_name
-```
+### Process
+- `pidof` - finding pid's by process name

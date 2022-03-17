@@ -1,6 +1,6 @@
 module sysmetric
 
-go 1.17
+go 1.18
 
 require (
 	github.com/c9s/goprocinfo v0.0.0-20210130143923-c95fcf8c64a8
@@ -16,7 +16,7 @@ require (
 	github.com/jaypipes/pcidb v0.6.0 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
-	golang.org/x/sys v0.0.0-20220310020820-b874c991c1a5 // indirect
+	golang.org/x/sys v0.0.0-20220317061510-51cd9980dadf // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	howett.net/plist v1.0.0 // indirect
 )

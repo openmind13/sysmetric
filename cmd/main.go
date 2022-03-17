@@ -13,9 +13,9 @@ import (
 )
 
 func main() {
-	// go startSystemMonitor()
+	go startSystemMonitor()
 	// go startProcMonitor()
-	go startSystemInformer()
+	// go startSystemInformer()
 
 	stopChan := make(chan struct{}, 1)
 	sigChan := make(chan os.Signal, 1)
@@ -37,9 +37,9 @@ func startSystemMonitor() {
 	go systemMonitor.Start()
 
 	for {
-		stats := <-systemMonitor.StatisticChan
+		statistic := <-systemMonitor.StatisticChan
 		// fmt.Printf("%+v\n\n", stats)
-		for _, netStat := range stats.NetworkStat {
+		for _, netStat := range statistic.NetworkStat {
 			fmt.Println(netStat.Iface, netStat.RxBytes)
 		}
 

@@ -1,4 +1,4 @@
-FROM golang:1.17.8-alpine3.15 AS builder
+FROM golang:1.18.0-alpine3.15 AS builder
 WORKDIR /build
 COPY go.mod go.sum ./
 RUN GOOS=linux GOARCH=amd64 go mod download
