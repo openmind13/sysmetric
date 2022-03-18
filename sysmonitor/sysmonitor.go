@@ -1,9 +1,8 @@
 package sysmonitor
 
 import (
-	"log"
-
-	linuxproc "github.com/c9s/goprocinfo/linux"
+	"sysmetric/sysmonitor/netmonitor"
+	"time"
 )
 
 // type Stats struct {
@@ -12,21 +11,25 @@ import (
 // 	Swap sigar.Swap
 // }
 
-type Statistic struct {
-	Stat        linuxproc.Stat
-	Cpu         linuxproc.CPUStat
-	CpuInfo     linuxproc.CPUInfo
-	NetStat     linuxproc.NetStat
-	NetworkStat []linuxproc.NetworkStat
-}
+// type Statistic struct {
+// 	Stat        linuxproc.Stat
+// 	Cpu         linuxproc.CPUStat
+// 	CpuInfo     linuxproc.CPUInfo
+// 	NetStat     linuxproc.NetStat
+// 	NetworkStat []linuxproc.NetworkStat
+// }
 
 type SystemMonitor struct {
-	StatisticChan chan Statistic
+	// StatisticChan chan Statistic
+
+	NetworkMonigor netmonitor.NetworkMonitor
 }
 
 func New() *SystemMonitor {
 	systemMonitor := SystemMonitor{
-		StatisticChan: make(chan Statistic, 1),
+		NetworkMonigor: *netmonitor.NewNetworkMonitor(netmonitor.Config{
+			Period: time.Second,
+		}),
 	}
 	return &systemMonitor
 }
@@ -56,35 +59,42 @@ func New() *SystemMonitor {
 // }
 
 func (m *SystemMonitor) Start() {
+
 	for {
-		statistic := Statistic{}
-
-		stat, err := linuxproc.ReadStat("/proc/stat")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		cpuInfo, err := linuxproc.ReadCPUInfo("/proc/cpuinfo")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// netStat, err := linuxproc.ReadNetStat("/proc/net/dev")
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-
-		networkStat, err := linuxproc.ReadNetworkStat("/proc/net/dev")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		statistic.Stat = *stat
-		statistic.Cpu = stat.CPUStatAll
-		statistic.CpuInfo = *cpuInfo
-		// statistic.NetStat = *netStat
-		statistic.NetworkStat = networkStat
-
-		m.StatisticChan <- statistic
+		m.NetworkMonigor.GetStats()
+		// stat := m.NetworkMonigor.GetStats()
+		// fmt.Printf("%+v\n", stat)
+		time.Sleep(time.Second)
 	}
+	// for {
+	// 	statistic := Statistic{}
+
+	// 	stat, err := linuxproc.ReadStat("/proc/stat")
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	cpuInfo, err := linuxproc.ReadCPUInfo("/proc/cpuinfo")
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	// netStat, err := linuxproc.ReadNetStat("/proc/net/dev")
+	// 	// if err != nil {
+	// 	// 	log.Fatal(err)
+	// 	// }
+
+	// 	networkStat, err := linuxproc.ReadNetworkStat("/proc/net/dev")
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+
+	// 	statistic.Stat = *stat
+	// 	statistic.Cpu = stat.CPUStatAll
+	// 	statistic.CpuInfo = *cpuInfo
+	// 	// statistic.NetStat = *netStat
+	// 	statistic.NetworkStat = networkStat
+
+	// 	m.StatisticChan <- statistic
+	// }
 }

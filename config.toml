@@ -1,4 +1,7 @@
 
+[prometheus]
+http_addr = "0.0.0.0:3000"
+
 [system_monitor]
 enabled = true
 scrape_period = "1s"

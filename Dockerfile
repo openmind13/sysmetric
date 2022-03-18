@@ -7,6 +7,7 @@ RUN GOOS=linux GOARCH=amd64 go build -o sysmetric cmd/main.go
 
 FROM --platform=linux/amd64 alpine:3.15
 WORKDIR /app
+RUN ifconfig
 RUN apk add ethtool
 COPY --from=builder /build/sysmetric .
 CMD ["/app/sysmetric"]

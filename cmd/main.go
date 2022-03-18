@@ -3,49 +3,80 @@ package main
 import (
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
+	"time"
+
 	"sysmetric/procmonitor"
 	"sysmetric/sysinformer"
 	"sysmetric/sysmonitor"
-	"time"
+	"sysmetric/sysmonitor/netmonitor"
+	"sysmetric/sysmonitor/netmonitor/ifc"
 )
 
+const version = "v0.0.0-in-docker"
+
 func main() {
-	go startSystemMonitor()
-	// go startProcMonitor()
-	// go startSystemInformer()
-
-	stopChan := make(chan struct{}, 1)
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-
-	select {
-	case <-stopChan:
-		log.Println("Stopped")
-		os.Exit(0)
-	case sig := <-sigChan:
-		fmt.Println("Signal:", sig)
-		os.Exit(0)
+	realIfcs, virtualIfcs, err := ifc.GetInterfaces()
+	if err != nil {
+		log.Fatal(err)
 	}
+	fmt.Println("real:", realIfcs)
+	fmt.Println("virtual:", virtualIfcs)
 }
+
+// func main() {
+// 	log.Println("Sysmonitor")
+// 	// go startSystemMonitor()
+// 	// go startProcMonitor()
+// 	// go startSystemInformer()
+// 	// go startNetMonitor()
+
+// 	ifaces, err := netmonitor.GetInterfacesSpeed("enp2s0", "docker0")
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+// 	fmt.Printf("%+v\n", ifaces)
+
+// 	errChan := make(chan error, 1)
+// 	stopChan := make(chan struct{}, 1)
+// 	sigChan := make(chan os.Signal, 1)
+// 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+
+// 	httpServer := httpserver.New(httpserver.Config{
+// 		HttpMetricAddr: "0.0.0.0:3001",
+// 	})
+// 	go httpServer.Start(errChan)
+
+// 	metric.Info.WithLabelValues(version).Set(1)
+
+// 	select {
+// 	case err := <-errChan:
+// 		log.Fatal(err)
+// 	case <-stopChan:
+// 		log.Println("Stopped")
+// 		os.Exit(0)
+// 	case sig := <-sigChan:
+// 		fmt.Println("Signal:", sig)
+// 		os.Exit(0)
+// 	}
+// }
 
 func startSystemMonitor() {
 	systemMonitor := sysmonitor.New()
 	log.Println("Starting system monitor")
 	go systemMonitor.Start()
 
-	for {
-		statistic := <-systemMonitor.StatisticChan
-		// fmt.Printf("%+v\n\n", stats)
-		for _, netStat := range statistic.NetworkStat {
-			fmt.Println(netStat.Iface, netStat.RxBytes)
-		}
+	// for {
+	// 	statistic := <-systemMonitor.StatisticChan
+	// 	// fmt.Printf("%+v\n\n", stats)
+	// 	for _, netStat := range statistic.NetworkStat {
+	// 		fmt.Println(netStat.Iface, netStat.RxBytes)
+	// 	}
 
-		fmt.Println()
-		time.Sleep(time.Second)
-	}
+	// 	fmt.Println()
+	// 	time.Sleep(time.Second)
+	// }
+
+	select {}
 }
 
 func startProcMonitor() {
@@ -77,5 +108,20 @@ func startSystemInformer() {
 
 		fmt.Println()
 		time.Sleep(time.Second)
+	}
+}
+
+func startNetMonitor() {
+	netMonitor := netmonitor.NewNetworkMonitor(netmonitor.Config{
+		Period: time.Second,
+	})
+	netMonitor.Run1()
+
+	for {
+		// stats := netMonitor.GetStats()
+		// fmt.Printf("%+v\n", stats)
+
+		netMonitor.GetStats()
+		time.Sleep(2 * time.Second)
 	}
 }
