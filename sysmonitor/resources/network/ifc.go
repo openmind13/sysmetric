@@ -1,4 +1,4 @@
-package ifc
+package network
 
 import (
 	"bufio"
@@ -17,7 +17,7 @@ const (
 	ETHTOOL_NAME = "ethtool"
 )
 
-type Ifc struct {
+type networkInterface struct {
 	Name         string
 	MacAddr      string
 	BandwidthMbs int
@@ -25,13 +25,13 @@ type Ifc struct {
 	Capabilities []*net.NICCapability
 }
 
-func GetInterfaces() (realIfcs []Ifc, virtualIfcs []Ifc, err error) {
+func getNetworkInterfaces() (realIfcs []networkInterface, virtualIfcs []networkInterface, err error) {
 	netInfo, err := ghw.Network()
 	if err != nil {
 		return nil, nil, err
 	}
 	for _, nic := range netInfo.NICs {
-		ifc := Ifc{
+		ifc := networkInterface{
 			Name:         nic.Name,
 			MacAddr:      nic.MacAddress,
 			Capabilities: nic.Capabilities,

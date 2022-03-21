@@ -1,100 +1,58 @@
 package sysmonitor
 
 import (
-	"sysmetric/sysmonitor/netmonitor"
+	"fmt"
+	"sysmetric/sysmonitor/resources/cpu"
+	"sysmetric/sysmonitor/resources/memory"
 	"time"
 )
 
-// type Stats struct {
-// 	Cpu  sigar.Cpu
-// 	Mem  sigar.Mem
-// 	Swap sigar.Swap
-// }
-
-// type Statistic struct {
-// 	Stat        linuxproc.Stat
-// 	Cpu         linuxproc.CPUStat
-// 	CpuInfo     linuxproc.CPUInfo
-// 	NetStat     linuxproc.NetStat
-// 	NetworkStat []linuxproc.NetworkStat
-// }
-
-type SystemMonitor struct {
-	// StatisticChan chan Statistic
-
-	NetworkMonigor netmonitor.NetworkMonitor
+type Statistic struct {
+	CpuUsagePercent     float64
+	MemoryUsagePercent  float64
+	NetworkUsagePercent float64
 }
 
-func New() *SystemMonitor {
+type Config struct {
+	ScrapePeriod            time.Duration
+	CpuCollectingPeriod     time.Duration
+	MemoryCollectingPeriod  time.Duration
+	NetworkCollectingPeriod time.Duration
+}
+
+type SystemMonitor struct {
+	config     Config
+	configChan chan Config
+
+	cpuMonitor *cpu.Monitor
+	memMonitor *memory.Monitor
+}
+
+func New(config Config) *SystemMonitor {
 	systemMonitor := SystemMonitor{
-		NetworkMonigor: *netmonitor.NewNetworkMonitor(netmonitor.Config{
-			Period: time.Second,
-		}),
+		config:     config,
+		configChan: make(chan Config, 1),
+		cpuMonitor: cpu.NewMonitor(),
+		memMonitor: memory.NewMemoryMonitor(),
 	}
 	return &systemMonitor
 }
 
-// func (m *SystemMonitor) Start() {
-// 	for {
-// 		mem := sigar.Mem{}
-// 		cpu := sigar.Cpu{}
-// 		swap := sigar.Swap{}
-// 		cpuList := sigar.CpuList{}
-
-// 		mem.Get()
-// 		cpu.Get()
-// 		cpuList.Get()
-// 		swap.Get()
-
-// 		stats := Stats{
-// 			Cpu:  cpu,
-// 			Mem:  mem,
-// 			Swap: swap,
-// 		}
-
-// 		m.StatsChan <- stats
-
-// 		fmt.Printf("%+v\n", stats)
-// 	}
-// }
-
 func (m *SystemMonitor) Start() {
-
 	for {
-		m.NetworkMonigor.GetStats()
-		// stat := m.NetworkMonigor.GetStats()
-		// fmt.Printf("%+v\n", stat)
-		time.Sleep(time.Second)
+		// select {
+		// case config := <-m.configChan:
+		// 	m.config = config
+		// }
+
+		cpuUsage, _ := m.cpuMonitor.GetCpuUsagePercent()
+		memUsage, _ := m.memMonitor.GetMemoryUsagePercent()
+		fmt.Println(cpuUsage, memUsage)
+
+		time.Sleep(m.config.ScrapePeriod)
 	}
-	// for {
-	// 	statistic := Statistic{}
+}
 
-	// 	stat, err := linuxproc.ReadStat("/proc/stat")
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	cpuInfo, err := linuxproc.ReadCPUInfo("/proc/cpuinfo")
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	// netStat, err := linuxproc.ReadNetStat("/proc/net/dev")
-	// 	// if err != nil {
-	// 	// 	log.Fatal(err)
-	// 	// }
-
-	// 	networkStat, err := linuxproc.ReadNetworkStat("/proc/net/dev")
-	// 	if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-
-	// 	statistic.Stat = *stat
-	// 	statistic.Cpu = stat.CPUStatAll
-	// 	statistic.CpuInfo = *cpuInfo
-	// 	// statistic.NetStat = *netStat
-	// 	statistic.NetworkStat = networkStat
-
-	// 	m.StatisticChan <- statistic
-	// }
+func (m *SystemMonitor) SetConfig(config Config) {
+	m.configChan <- config
 }
