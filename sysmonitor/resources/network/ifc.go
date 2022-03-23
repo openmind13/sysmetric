@@ -17,7 +17,7 @@ const (
 	ETHTOOL_NAME = "ethtool"
 )
 
-type networkInterface struct {
+type NetInterface struct {
 	Name         string
 	MacAddr      string
 	BandwidthMbs int
@@ -25,13 +25,13 @@ type networkInterface struct {
 	Capabilities []*net.NICCapability
 }
 
-func getNetworkInterfaces() (realIfcs []networkInterface, virtualIfcs []networkInterface, err error) {
+func GetNetworkInterfaces() (realIfcs []NetInterface, virtualIfcs []NetInterface, err error) {
 	netInfo, err := ghw.Network()
 	if err != nil {
 		return nil, nil, err
 	}
 	for _, nic := range netInfo.NICs {
-		ifc := networkInterface{
+		ifc := NetInterface{
 			Name:         nic.Name,
 			MacAddr:      nic.MacAddress,
 			Capabilities: nic.Capabilities,
